@@ -7,16 +7,18 @@ const router = jsonServer.router("db.json");
 const middlewares = jsonServer.defaults();
 
 server.use(middlewares);
-
 // Add this before server.use(router)
 server.use(
-  // Add custem route here if needed
-  jsonServer.rewriter({ "/*": "/$1" })
+  // Add custom route here if needed
+  jsonServer.rewriter({
+    "/*": "/$1",
+  })
 );
-
 server.use(router);
-
 // Listen to port
-server.listen(3000, () => console.log("JSON Server is running"));
+server.listen(3000, () => {
+  console.log("JSON Server is running");
+});
 
+// Export the Server API
 module.exports = server;
