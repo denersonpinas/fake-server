@@ -126,5 +126,21 @@
       "resumo": "Drone de evacuação médica para áreas remotas.",
       "descricao": "O MedEvacDrone é um drone especializado em evacuação médica em áreas remotas e de difícil acesso. Equipado com recursos médicos de emergência, pode ser crucial para fornecer assistência rápida em situações críticas."
     }
+  ],
+  "clientes": [
+    {
+      "id": 1,
+      "nome": "Dênerson Pinas de Souza",
+      "whatsapp": "73981765369",
+      "cpf": "079801865836",
+      "data_nacimento": "22/11/1999"
+    },
+    {
+      "id": 2,
+      "nome": "Dênerson Pinas de Souza",
+      "whatsapp": "73981765369",
+      "cpf": "079801865836",
+      "data_nacimento": "22/11/1999"
+    }
   ]
 }
