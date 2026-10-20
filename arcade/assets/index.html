@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arcade Trio — Guia de assets</title>
+<style>
+:root{--bg:#0e1024;--bg2:#171a3a;--line:#2e3470;--ink:#eef0ff;--muted:#9aa0d0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif;padding:28px;max-width:1100px;margin:auto}
+h1{margin:0 0 4px;font-size:32px}h2{margin:34px 0 12px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+p{color:var(--muted);margin:0 0 6px}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.tile{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;justify-items:center;text-align:center;font-size:11px;color:var(--muted)}
+.tile img{display:block}
+.sw{width:92px;height:56px;border-radius:12px;display:flex;align-items:flex-end;padding:6px;font-size:11px;font-weight:700}
+.ico{width:28px;height:28px;color:var(--ink)}.ico.f{color:#fbbf24}
+.checker{background:conic-gradient(#222 25%,#2d2d2d 0 50%,#222 0 75%,#2d2d2d 0) 0 0/16px 16px}
+</style></head><body>
+<h1>Arcade Trio — assets</h1>
+<p>Linguagem: formas planas, cantos arredondados, um brilho suave por objeto, paleta curta sobre azul-noite. Tudo em SVG, gerado por <code>tools/build-assets.mjs</code>.</p>
+
+<h2>Paleta</h2>
+<div class="row">
+ <div class="sw" style="background:#0e1024;border:1px solid #2e3470">Noite #0e1024</div>
+ <div class="sw" style="background:#1d2147">Painel #1d2147</div>
+ <div class="sw" style="background:#7c5cff">Índigo #7c5cff</div>
+ <div class="sw" style="background:#22d3ee;color:#04202a">Ciano #22d3ee</div>
+ <div class="sw" style="background:#f472b6;color:#3b0824">Rosa #f472b6</div>
+ <div class="sw" style="background:#ff4d78">Rubi #ff4d78</div>
+ <div class="sw" style="background:#fbbf24;color:#3a2600">Âmbar #fbbf24</div>
+ <div class="sw" style="background:#34d399;color:#03271b">Menta #34d399</div>
+</div>
+
+<h2>Marca e ícone do app</h2>
+<div class="row">
+ <div class="tile"><img src="brand/mark.svg" width="96" height="96" alt="">marca</div>
+ <div class="tile"><img src="../icon.svg" width="96" height="96" alt="">ícone</div>
+ <div class="tile"><img src="../icon-maskable.svg" width="96" height="96" alt="">maskable</div>
+</div>
+
+<h2>Capas</h2>
+<div class="row">
+ <div class="tile"><img src="covers/pinball.svg" width="160" height="160" alt="">pinball</div>
+ <div class="tile"><img src="covers/golf.svg" width="160" height="160" alt="">minigolfe</div>
+ <div class="tile"><img src="covers/uno.svg" width="160" height="160" alt="">uno</div>
+</div>
+
+<h2>Ícones de interface</h2>
+<div class="row"><div class="tile"><div class="row" style="gap:18px" id="icons"></div>back · restart · sound · star · lock · user · users · trophy · play</div></div>
+
+<h2>Pinball</h2>
+<div class="row">
+ <div class="tile checker"><img src="pinball/ball.svg" width="54" alt="">bola</div>
+ <div class="tile checker"><img src="pinball/bumper.svg" width="76" alt="">bumper</div>
+ <div class="tile checker"><img src="pinball/bumper-hit.svg" width="76" alt="">bumper (acerto)</div>
+ <div class="tile checker"><img src="pinball/target.svg" width="48" alt="">alvo</div>
+ <div class="tile checker"><img src="pinball/target-off.svg" width="48" alt="">alvo (off)</div>
+ <div class="tile checker"><img src="pinball/flipper.svg" width="200" alt="">flipper</div>
+ <div class="tile checker"><img src="pinball/plunger-knob.svg" width="84" alt="">lançador</div>
+ <div class="tile"><img src="pinball/table-bg.svg" width="200" alt="" style="border-radius:10px">fundo da mesa</div>
+</div>
+
+<h2>Minigolfe</h2>
+<div class="row">
+ <div class="tile checker"><img src="golf/ball.svg" width="56" alt="">bola J1</div>
+ <div class="tile checker"><img src="golf/ball-amber.svg" width="56" alt="">bola J2</div>
+ <div class="tile checker"><img src="golf/hole.svg" width="72" alt="">buraco</div>
+ <div class="tile checker"><img src="golf/flag.svg" width="66" alt="">bandeira</div>
+ <div class="tile checker"><img src="golf/tee.svg" width="64" alt="">tee</div>
+ <div class="tile"><div style="width:120px;height:80px;background:url(golf/grass.svg) 0 0/80px"></div>grama</div>
+ <div class="tile"><div style="width:120px;height:80px;background:url(golf/sand.svg) 0 0/64px"></div>areia</div>
+ <div class="tile"><div style="width:120px;height:80px;background:url(golf/water.svg) 0 0/64px 32px"></div>água</div>
+ <div class="tile"><div style="width:120px;height:80px;background:url(golf/wood.svg) 0 0/48px 24px"></div>madeira</div>
+ <div class="tile"><div style="width:120px;height:80px;background:url(golf/hazard.svg) 0 0/24px"></div>obstáculo móvel</div>
+</div>
+
+<h2>UNO</h2>
+<div class="row" id="uno"></div>
+
+<script>
+const names=['back','restart','sound-on','sound-off','star','star-o','lock','user','users','trophy','play'];
+document.getElementById('icons').innerHTML=names.map(n=>`<svg class="ico ${n==='star'?'f':''}"><use href="../assets/icons.svg#i-${n}"/></svg>`).join('');
+const cs=['red','yellow','green','blue'];
+const files=[];for(const c of cs){for(const v of ['0','5','9','skip','reverse','draw2'])files.push(`${c}-${v}`)}
+files.push('wild','wild4','back');
+document.getElementById('uno').innerHTML=files.map(f=>`<img src="uno/${f}.svg" width="84" alt="${f}">`).join('');
+</script>
+</body></html>

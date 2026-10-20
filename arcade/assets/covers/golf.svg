@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#145c37"/><stop offset="1" stop-color="#0a3622"/></linearGradient>
+   <radialGradient id="b" cx=".35" cy=".3"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfd6e6"/></radialGradient><clipPath id="c"><rect width="160" height="160" rx="36"/></clipPath></defs><g clip-path="url(#c)"><rect width="160" height="160" fill="url(#g)"/>
+   <ellipse cx="80" cy="118" rx="62" ry="30" fill="#2fbf71"/><ellipse cx="80" cy="118" rx="62" ry="30" fill="none" stroke="#1d8f52" stroke-width="3"/>
+   <path d="M122 124a30 18 0 0 1-30 14" fill="none" stroke="#fbbf24" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+   <ellipse cx="94" cy="112" rx="13" ry="6.5" fill="#0b1a12"/>
+   <path d="M94 110V44" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M94 44l32 12-32 12z" fill="#ff4d78"/>
+   <circle cx="52" cy="124" r="8" fill="url(#b)"/><ellipse cx="55" cy="131" rx="9" ry="3" fill="#0003"/></g></svg>
