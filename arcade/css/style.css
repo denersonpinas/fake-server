@@ -18,6 +18,9 @@ button:disabled { cursor: not-allowed; }
 .big-stars { display: flex; justify-content: center; gap: 8px; margin: 4px 0 8px; } .big-stars .ico { width: 42px; height: 42px; }
 .btn .ico { margin-right: 2px; }
 
+.ico.flip { transform: scaleX(-1); } .big-stars.trophy { color: var(--warn); } .big-stars.trophy .ico { width: 56px; height: 56px; }
+.zone .ico { width: 34px; height: 34px; } .nudge-btn .ico { width: 22px; height: 22px; }
+
 /* ---------- botões ---------- */
 .btn { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 10px 16px; font-weight: 600; transition: transform .08s, background .15s; }
 .btn:hover { background: #262b5c; }
@@ -100,7 +103,7 @@ canvas { display: block; max-width: 100%; max-height: 100%; touch-action: none; 
 .plunger-btn:active { background: var(--accent2); color: #000; }
 .nudge-btn { position: absolute; left: 10px; bottom: 56px; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line); background: rgba(14, 16, 36, .85); z-index: 3; font-size: 1.1rem; touch-action: none; }
 .pin-msg { position: absolute; left: 50%; top: 40%; transform: translateX(-50%); width: min(300px, 80%); text-align: center; background: rgba(10, 12, 34, .88); border: 1px solid var(--accent); border-radius: 14px; padding: 10px 14px; font-weight: 600; pointer-events: none; z-index: 2; }
-@media (pointer: fine) { .plunger-btn, .nudge-btn { bottom: 12px; } .zone span { display: none; } }
+@media (pointer: fine) { .plunger-btn, .nudge-btn { bottom: 12px; } .zone .ico { display: none; } }
 
 /* ---------- golfe ---------- */
 .golf-hud { padding: 6px 12px; background: #0b1a12; display: grid; gap: 4px; }

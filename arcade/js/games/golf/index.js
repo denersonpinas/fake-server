@@ -7,9 +7,9 @@ import { W, H, BOUNDS, BALL_R, HOLE_R, DT, MAX_STROKES, createWorld, updateMover
 const BALL_COLORS = ['#f1f5f9', '#f59e0b'];
 
 const strokeLabel = (s, par) => {
-  if (s === 1) return 'Hole in one! 🎯';
+  if (s === 1) return 'Hole in one!';
   const d = s - par;
-  return d <= -2 ? 'Eagle 🦅' : d === -1 ? 'Birdie 🐦' : d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === 2 ? 'Duplo bogey' : `+${d}`;
+  return d <= -2 ? 'Eagle' : d === -1 ? 'Birdie' : d === 0 ? 'Par' : d === 1 ? 'Bogey' : d === 2 ? 'Duplo bogey' : `+${d}`;
 };
 
 export function mount(root, { mode, level, names, onFinish }) {
@@ -107,7 +107,7 @@ export function mount(root, { mode, level, names, onFinish }) {
       p.done = true;
       jingle([660, 880]);
     } else if (r.status === 'water') {
-      toast(`💦 ${p.name} caiu na água! +1 tacada`, 1500);
+      toast(`${p.name} caiu na água! +1 tacada`, 1500);
       beep(160, 0.25, 'sawtooth');
       p.strokes[holeIdx]++;
       p.ball = { x: p.last.x, y: p.last.y, vx: 0, vy: 0 };
@@ -141,7 +141,7 @@ export function mount(root, { mode, level, names, onFinish }) {
     jingle([523, 659, 784, 1046]);
     onFinish({
       won: true, stars,
-      title: players.length > 1 ? (winners.length > 1 ? 'Empate! 🤝' : `${winners[0].name} venceu! 🏆`) : diff <= 0 ? 'Campo dominado! ⛳' : 'Campo concluído!',
+      title: players.length > 1 ? (winners.length > 1 ? 'Empate!' : `${winners[0].name} venceu!`) : diff <= 0 ? 'Campo dominado!' : 'Campo concluído!',
       lines,
     });
   }

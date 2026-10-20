@@ -1,4 +1,4 @@
-import { h, toast, modal } from '../../ui.js';
+import { h, toast, modal, icon } from '../../ui.js';
 import { beep, jingle } from '../../sfx.js';
 import { COLORS, COLOR_NAMES, createGame, playCard, drawCard, passTurn, callUno, legalMoves, isWild, roundPoints } from './logic.js';
 import { chooseMove } from './ai.js';
@@ -60,8 +60,8 @@ export function mount(root, { mode, level, names, onFinish }) {
     for (const e of events) {
       const who = state.players[e.player]?.name;
       if (e.type === 'play') beep(520 + (e.card.kind === 'number' ? e.card.value * 20 : 200), 0.07, 'triangle');
-      if (e.type === 'skip') toast(`${who} perdeu a vez ⊘`);
-      if (e.type === 'reverse') toast('Sentido invertido ⇄');
+      if (e.type === 'skip') toast(`${who} perdeu a vez`);
+      if (e.type === 'reverse') toast('Sentido invertido');
       if (e.type === 'draw') toast(`${who} comprou ${e.count} cartas`);
       if (e.type === 'uno') toast(`${state.players[e.player].name}: UNO!`, 1400);
       if (e.type === 'unoPenalty') toast(`${state.players[e.player].name} esqueceu o UNO e comprou 2!`, 2200);
@@ -140,7 +140,7 @@ export function mount(root, { mode, level, names, onFinish }) {
     onFinish({
       won: humanWon,
       stars,
-      title: duo ? `${winnerName} venceu a partida! 🎉` : humanWon ? 'Você venceu a partida! 🎉' : `${winnerName} venceu a partida`,
+      title: duo ? `${winnerName} venceu a partida!` : humanWon ? 'Você venceu a partida!' : `${winnerName} venceu a partida`,
       lines: roster.map((p, i) => `${p.name}: ${match.wins[i]} vitória(s) · ${match.points[i]} pts`),
     });
   }
@@ -160,7 +160,7 @@ export function mount(root, { mode, level, names, onFinish }) {
         h('small', null, `${p.hand.length} carta(s)${p.hand.length === 1 ? ' · UNO!' : ''} · ${match.wins[i]} vit.`)))),
       h('div', { class: 'uno-table' },
         h('button', { class: 'pile', onClick: onDraw, 'aria-label': 'Comprar carta', disabled: !(isHumanTurn() && state.phase === 'play') }, backEl(), h('small', null, `Monte ${state.draw.length}`)),
-        h('div', { class: 'pile' }, cardEl(top), h('small', { class: `color-chip ${state.color}` }, `${COLOR_NAMES[state.color]} ${state.dir === 1 ? '⟳' : '⟲'}`))),
+        h('div', { class: 'pile' }, cardEl(top), h('small', { class: `color-chip ${state.color}` }, COLOR_NAMES[state.color], ' ', icon('restart', state.dir === 1 ? '' : 'flip')))),
       h('p', { class: 'status' }, state.phase === 'over' ? 'Fim da rodada' : cur.bot ? `${cur.name} está pensando…` : state.phase === 'drawn' ? 'Jogue a carta comprada ou passe' : `Vez de ${cur.name}`),
       h('div', { class: 'uno-me' },
         h('div', { class: 'me-head' }, h('strong', null, `${you.name} · ${match.wins[m]} vit. · ${you.hand.length} carta(s)`),

@@ -1,4 +1,4 @@
-import { h, toast } from '../../ui.js';
+import { h, toast, icon } from '../../ui.js';
 import { beep, jingle } from '../../sfx.js';
 import { loadImages } from '../../assets.js';
 import { TABLES } from './tables.js';
@@ -38,9 +38,9 @@ export function mount(root, { mode, level, names, onFinish }) {
   const goalBar = h('i', null);
   const msg = h('div', { class: 'pin-msg' });
   const plunger = h('button', { class: 'plunger-btn', 'aria-label': 'Lançar bola (segure e solte)' }, 'LANÇAR');
-  const zoneL = h('div', { class: 'zone left' }, h('span', null, '◀'));
-  const zoneR = h('div', { class: 'zone right' }, h('span', null, '▶'));
-  const nudgeBtn = h('button', { class: 'nudge-btn', 'aria-label': 'Empurrar a mesa' }, '⤒');
+  const zoneL = h('div', { class: 'zone left' }, icon('back'));
+  const zoneR = h('div', { class: 'zone right' }, icon('chevron-right'));
+  const nudgeBtn = h('button', { class: 'nudge-btn', 'aria-label': 'Empurrar a mesa' }, icon('up'));
 
   root.replaceChildren(h('div', { class: 'pinball' },
     h('div', { class: 'pin-hud' },
@@ -69,7 +69,7 @@ export function mount(root, { mode, level, names, onFinish }) {
 
   function drained() {
     if (saveLeft > 0) {
-      toast('Bola salva! ✨');
+      toast('Bola salva!');
       saveUsed = true;
       const keep = world.score;
       resetBall(world);
@@ -98,7 +98,7 @@ export function mount(root, { mode, level, names, onFinish }) {
     jingle(won ? [523, 659, 784, 1046] : [392, 330, 262]);
     onFinish({
       won, stars: won ? Math.max(1, 4 - ballsUsed) : 0,
-      title: won ? 'Meta atingida! 🎉' : 'Fim de jogo',
+      title: won ? 'Meta atingida!' : 'Fim de jogo',
       lines: [`Pontuação: ${fmt(p.score)}`, `Meta: ${fmt(def.target)}`],
     });
   }
@@ -110,7 +110,7 @@ export function mount(root, { mode, level, names, onFinish }) {
     jingle([523, 659, 784, 1046]);
     onFinish({
       won: true, stars: 0,
-      title: winners.length > 1 ? 'Empate! 🤝' : `${winners[0].name} venceu! 🏆`,
+      title: winners.length > 1 ? 'Empate!' : `${winners[0].name} venceu!`,
       lines: players.map((p) => `${p.name}: ${fmt(p.score)} pontos`),
     });
   }

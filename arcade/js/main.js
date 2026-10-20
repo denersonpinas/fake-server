@@ -103,7 +103,7 @@ async function play(gameId, mode, level) {
       const next = level < game.levels[mode].length && store.isUnlocked(gameId, mode, level + 1);
       modal({
         title: r.title,
-        body: [r.stars ? h('div', { class: 'big-stars' }, starRow(r.stars)) : null, ...(r.lines || []).map((l) => h('p', null, l))],
+        body: [r.stars ? h('div', { class: 'big-stars' }, starRow(r.stars)) : r.won ? h('div', { class: 'big-stars trophy' }, icon('trophy')) : null, ...(r.lines || []).map((l) => h('p', null, l))],
         actions: [
           { label: 'Fases', onClick: () => go(`#/g/${gameId}`) },
           { label: 'Jogar de novo', primary: !(r.won && next), onClick: () => route() },

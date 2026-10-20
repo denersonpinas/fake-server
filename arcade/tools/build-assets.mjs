@@ -42,6 +42,8 @@ ${ico('lock', '<rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11
 ${ico('user', '<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>')}
 ${ico('users', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 19.5a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.8"/><path d="M17.5 14.2a5.5 5.5 0 0 1 4 5.3"/>')}
 ${ico('trophy', '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4v1a4 4 0 0 0 4 4M16 6h4v1a4 4 0 0 1-4 4"/><path d="M12 13v4M8.5 20h7M10 17h4"/>')}
+${ico('chevron-right', '<path d="M9 5l7 7-7 7"/>')}
+${ico('up', '<path d="M5 15l7-7 7 7"/>')}
 ${ico('play', '<path d="M8 5l11 7-11 7z"/>')}
 ${ico('rotate', '<rect x="7" y="3" width="10" height="16" rx="2.5"/><path d="M3 21h18M18 19l3 2-3 2" transform="translate(0 -2)"/>')}
 </svg>`);
