@@ -1,7 +1,8 @@
-import { h, modal, icon, starRow } from './ui.js';
+import { h, modal, icon, starRow, toast } from './ui.js';
 import * as store from './store.js';
 import { setMuted } from './sfx.js';
 import { GAMES, byId } from './registry.js';
+import { initOffline, getNetState, promptInstall } from './offline.js';
 
 const app = document.getElementById('app');
 let session = null; // { destroy() } do jogo em execução
@@ -33,7 +34,29 @@ function home() {
         h('img', { class: 'card-art', src: `assets/covers/${g.id}.svg`, alt: '', width: 72, height: 72 }), h('strong', null, g.title), h('small', null, g.tagline),
         h('span', { class: 'progress' }, `${done}/${total} fases`));
     })),
-    h('footer', null, 'Funciona offline depois do primeiro acesso · Instale pelo menu do navegador')));
+    netFooter()));
+}
+
+/** Rodapé do hub: estado do modo offline, atualização e instalação. */
+function netFooter() {
+  const box = h('footer', { class: 'net' });
+  const render = () => {
+    const s = getNetState();
+    const msg = !s.supported ? 'Modo offline indisponível neste navegador'
+      : !s.online ? 'Sem conexão — você está jogando offline'
+      : s.ready ? 'Pronto para jogar offline'
+      : 'Preparando o modo offline…';
+    box.replaceChildren(...[
+      h('span', { class: `net-chip ${!s.online ? 'off' : s.ready ? 'ok' : ''}` }, h('i', { class: 'net-dot' }), msg),
+      s.update && h('button', { class: 'btn', onClick: () => location.reload() }, 'Nova versão — atualizar'),
+      s.canInstall && h('button', { class: 'btn primary', onClick: promptInstall }, 'Instalar app'),
+      !s.canInstall && s.supported && h('small', null, 'No iPhone: Compartilhar → Adicionar à Tela de Início'),
+    ].filter(Boolean));
+  };
+  const onNet = () => (box.isConnected ? render() : window.removeEventListener('arcade:net', onNet));
+  window.addEventListener('arcade:net', onNet);
+  render();
+  return box;
 }
 
 /* ---------- Seleção de modo e fase ---------- */
@@ -124,6 +147,6 @@ function route() {
 window.addEventListener('hashchange', route);
 route();
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+initOffline();
+window.addEventListener('offline', () => toast('Sem conexão — tudo continua funcionando'));
+window.addEventListener('online', () => toast('Conexão de volta'));

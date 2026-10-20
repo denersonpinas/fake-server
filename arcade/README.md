@@ -16,7 +16,11 @@ npm test             # 39 testes de lógica (node --test), sem navegador
 1. Publique a pasta `arcade/` como site estático (ex.: Vercel com *Root Directory* = `arcade`, GitHub Pages, Netlify).
    O restante do repositório (`server.js`, `db.json`) é a API fake e não é afetado.
 2. Abra o link no celular. **Android/Chrome**: menu ⋮ → *Instalar app*. **iPhone/Safari**: Compartilhar → *Adicionar à Tela de Início*.
-3. Depois do primeiro acesso funciona sem internet (service worker em `sw.js`). Ao mudar arquivos, incremente `CACHE` em `sw.js`.
+3. **Offline**: no primeiro acesso o service worker (`sw.js`) baixa o app inteiro (51 arquivos, poucos KB cada). O rodapé do hub mostra
+   *Preparando… → Pronto para jogar offline*; depois disso tudo funciona sem internet (progresso e preferências ficam no aparelho).
+   O hub avisa quando a conexão cai/volta e quando há **nova versão** (botão *Atualizar*); em navegadores que permitem, aparece *Instalar app*.
+   Ao mudar qualquer arquivo, incremente `CACHE` em `sw.js` para os aparelhos receberem a atualização.
+   Atenção: `cache.addAll` falha se a lista tiver URLs duplicadas — `sw.js` já deduplica.
 
 ## Assets (arte)
 

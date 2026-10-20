@@ -43,6 +43,9 @@ button:disabled { cursor: not-allowed; }
 .card .progress { margin-top: 4px; font-size: .85rem; color: var(--accent2); }
 .game-pinball { border-left: 5px solid #f472b6; } .game-golf { border-left: 5px solid #34d399; } .game-uno { border-left: 5px solid var(--yellow); }
 footer { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 28px; }
+footer.net { display: grid; justify-items: center; gap: 10px; }
+.net-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--bg2); border: 1px solid var(--line); font-weight: 600; }
+.net-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--warn); } .net-chip.ok .net-dot { background: var(--good); } .net-chip.off .net-dot { background: var(--bad); }
 
 /* ---------- configuração ---------- */
 .bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
