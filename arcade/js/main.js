@@ -1,4 +1,4 @@
-import { h, modal, starStr } from './ui.js';
+import { h, modal, icon, starRow } from './ui.js';
 import * as store from './store.js';
 import { setMuted } from './sfx.js';
 import { GAMES, byId } from './registry.js';
@@ -25,12 +25,12 @@ const go = (hash) => { if (location.hash === hash) route(); else location.hash =
 /* ---------- Início ---------- */
 function home() {
   show(h('main', { class: 'screen home' },
-    h('header', { class: 'hero' }, h('h1', null, 'Arcade ', h('span', null, 'Trio')), h('p', null, 'Pinball, minigolfe e UNO — solo ou em dupla')),
+    h('header', { class: 'hero' }, h('img', { class: 'hero-mark', src: 'assets/brand/mark.svg', alt: '', width: 84, height: 84 }), h('h1', null, 'Arcade ', h('span', null, 'Trio')), h('p', null, 'Pinball, minigolfe e UNO — solo ou em dupla')),
     h('div', { class: 'cards' }, GAMES.map((g) => {
       const done = ['solo', 'duo'].reduce((n, m) => n + g.levels[m].filter((_, i) => store.getStars(g.id, m, i + 1) > 0).length, 0);
       const total = g.levels.solo.length + g.levels.duo.length;
       return h('button', { class: `card game-${g.id}`, onClick: () => go(`#/g/${g.id}`) },
-        h('span', { class: 'card-icon' }, g.icon), h('strong', null, g.title), h('small', null, g.tagline),
+        h('img', { class: 'card-art', src: `assets/covers/${g.id}.svg`, alt: '', width: 72, height: 72 }), h('strong', null, g.title), h('small', null, g.tagline),
         h('span', { class: 'progress' }, `${done}/${total} fases`));
     })),
     h('footer', null, 'Funciona offline depois do primeiro acesso · Instale pelo menu do navegador')));
@@ -58,17 +58,17 @@ function setup(gameId) {
       const open = store.isUnlocked(game.id, mode, n);
       const st = store.getStars(game.id, mode, n);
       return h('button', { class: `level ${open ? '' : 'locked'}`, disabled: !open, onClick: () => { store.setPrefs({ mode, names }); go(`#/p/${game.id}/${mode}/${n}`); } },
-        h('b', null, open ? n : '🔒'), h('span', null, h('strong', null, lv.title), h('small', null, lv.desc)), h('em', null, st ? starStr(st) : ''));
+        h('b', null, open ? n : icon('lock')), h('span', null, h('strong', null, lv.title), h('small', null, lv.desc)), h('em', null, st ? starRow(st) : ''));
     }));
   };
 
-  for (const [m, label] of [['solo', '👤 Solo'], ['duo', '👥 Dupla']]) {
-    modeBtns[m] = h('button', { class: 'seg-btn', onClick: () => { mode = m; store.setPrefs({ mode }); draw(); } }, label);
+  for (const [m, ic, label] of [['solo', 'user', 'Solo'], ['duo', 'users', 'Dupla']]) {
+    modeBtns[m] = h('button', { class: 'seg-btn', onClick: () => { mode = m; store.setPrefs({ mode }); draw(); } }, icon(ic), ' ', label);
   }
   draw();
 
   show(h('main', { class: 'screen setup' },
-    h('header', { class: 'bar' }, h('button', { class: 'btn ghost', onClick: () => go('#/') }, '← Início'), h('h2', null, `${game.icon} ${game.title}`)),
+    h('header', { class: 'bar' }, h('button', { class: 'btn ghost', onClick: () => go('#/') }, icon('back'), ' Início'), h('img', { class: 'bar-art', src: `assets/covers/${game.id}.svg`, alt: '', width: 36, height: 36 }), h('h2', null, game.title)),
     h('p', { class: 'howto' }, game.howto),
     h('div', { class: 'seg' }, modeBtns.solo, modeBtns.duo),
     namesBox,
@@ -82,13 +82,14 @@ async function play(gameId, mode, level) {
   if (!lv) return go('#/');
   const prefs = store.getPrefs();
   const stage = h('div', { class: 'stage' });
-  const muteBtn = h('button', { class: 'btn ghost', title: 'Som', 'aria-label': 'Ligar/desligar som', onClick: () => { prefs.muted = !prefs.muted; setMuted(prefs.muted); store.setPrefs({ muted: prefs.muted }); muteBtn.textContent = prefs.muted ? '🔇' : '🔊'; } }, prefs.muted ? '🔇' : '🔊');
+  const soundIcon = () => icon(prefs.muted ? 'sound-off' : 'sound-on');
+  const muteBtn = h('button', { class: 'btn ghost', title: 'Som', 'aria-label': 'Ligar/desligar som', onClick: () => { prefs.muted = !prefs.muted; setMuted(prefs.muted); store.setPrefs({ muted: prefs.muted }); muteBtn.replaceChildren(soundIcon()); } }, soundIcon());
   setMuted(prefs.muted);
   show(h('main', { class: 'screen play' },
     h('header', { class: 'topbar' },
-      h('button', { class: 'btn ghost', onClick: () => go(`#/g/${gameId}`) }, '← Fases'),
+      h('button', { class: 'btn ghost', onClick: () => go(`#/g/${gameId}`) }, icon('back'), ' Fases'),
       h('div', { class: 'title' }, `${game.title} · ${level}. ${lv.title}`, h('small', null, mode === 'duo' ? 'Dupla' : 'Solo')),
-      h('button', { class: 'btn ghost', title: 'Reiniciar', 'aria-label': 'Reiniciar fase', onClick: () => route() }, '↻'), muteBtn),
+      h('button', { class: 'btn ghost', title: 'Reiniciar', 'aria-label': 'Reiniciar fase', onClick: () => route() }, icon('restart')), muteBtn),
     stage));
   const mine = token;
   const mod = await game.load();
@@ -102,11 +103,11 @@ async function play(gameId, mode, level) {
       const next = level < game.levels[mode].length && store.isUnlocked(gameId, mode, level + 1);
       modal({
         title: r.title,
-        body: [r.stars ? h('div', { class: 'big-stars' }, starStr(r.stars)) : null, ...(r.lines || []).map((l) => h('p', null, l))],
+        body: [r.stars ? h('div', { class: 'big-stars' }, starRow(r.stars)) : null, ...(r.lines || []).map((l) => h('p', null, l))],
         actions: [
           { label: 'Fases', onClick: () => go(`#/g/${gameId}`) },
           { label: 'Jogar de novo', primary: !(r.won && next), onClick: () => route() },
-          ...(r.won && next ? [{ label: 'Próxima fase ▶', primary: true, onClick: () => go(`#/p/${gameId}/${mode}/${level + 1}`) }] : []),
+          ...(r.won && next ? [{ label: 'Próxima fase', primary: true, onClick: () => go(`#/p/${gameId}/${mode}/${level + 1}`) }] : []),
         ],
       });
     },

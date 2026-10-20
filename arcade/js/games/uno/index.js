@@ -4,16 +4,20 @@ import { COLORS, COLOR_NAMES, createGame, playCard, drawCard, passTurn, callUno,
 import { chooseMove } from './ai.js';
 import { SOLO_LEVELS, DUO_LEVELS, BOT_NAMES } from './config.js';
 
-const SYMBOL = { skip: '⊘', reverse: '⇄', draw2: '+2', wild: '✦', wild4: '+4' };
-const symbol = (c) => (c.kind === 'number' ? String(c.value) : SYMBOL[c.kind]);
+import { cardSvg, backSvg } from './art.js';
+
 const ORDER = { red: 0, yellow: 1, green: 2, blue: 3 };
 
 function cardEl(card, extra = '') {
-  const s = symbol(card);
-  return h('div', { class: `ucard ${card.color || 'wild'} ${extra}`, 'data-id': card.id },
-    h('i', { class: 'tl' }, s), h('b', null, s), h('i', { class: 'br' }, s));
+  const el = h('div', { class: `ucard ${extra}`.trim(), 'data-id': card.id });
+  el.innerHTML = cardSvg(card);
+  return el;
 }
-const backEl = (cls = '') => h('div', { class: `ucard back ${cls}` }, h('b', null, 'UNO'));
+function backEl(cls = '') {
+  const el = h('div', { class: `ucard back ${cls}`.trim() });
+  el.innerHTML = backSvg();
+  return el;
+}
 
 export function mount(root, { mode, level, names, onFinish }) {
   const duo = mode === 'duo';
@@ -153,13 +157,13 @@ export function mount(root, { mode, level, names, onFinish }) {
     view.replaceChildren(...[
       h('div', { class: 'uno-opps' }, state.players.map((p, i) => i === m ? null : h('div', { class: `opp ${i === state.current && state.phase !== 'over' ? 'turn' : ''}` },
         h('strong', null, p.name), h('div', { class: 'backs' }, Array.from({ length: Math.min(p.hand.length, 9) }, () => backEl('mini'))),
-        h('small', null, `${p.hand.length} carta(s)${p.hand.length === 1 ? ' · UNO!' : ''} · ${match.wins[i]}🏆`)))),
+        h('small', null, `${p.hand.length} carta(s)${p.hand.length === 1 ? ' · UNO!' : ''} · ${match.wins[i]} vit.`)))),
       h('div', { class: 'uno-table' },
         h('button', { class: 'pile', onClick: onDraw, 'aria-label': 'Comprar carta', disabled: !(isHumanTurn() && state.phase === 'play') }, backEl(), h('small', null, `Monte ${state.draw.length}`)),
-        h('div', { class: 'pile' }, cardEl(top), h('small', { class: `color-chip ${state.color}` }, `${COLOR_NAMES[state.color]} ${state.dir === 1 ? '↻' : '↺'}`))),
+        h('div', { class: 'pile' }, cardEl(top), h('small', { class: `color-chip ${state.color}` }, `${COLOR_NAMES[state.color]} ${state.dir === 1 ? '⟳' : '⟲'}`))),
       h('p', { class: 'status' }, state.phase === 'over' ? 'Fim da rodada' : cur.bot ? `${cur.name} está pensando…` : state.phase === 'drawn' ? 'Jogue a carta comprada ou passe' : `Vez de ${cur.name}`),
       h('div', { class: 'uno-me' },
-        h('div', { class: 'me-head' }, h('strong', null, `${you.name} · ${match.wins[m]}🏆 · ${you.hand.length} carta(s)`),
+        h('div', { class: 'me-head' }, h('strong', null, `${you.name} · ${match.wins[m]} vit. · ${you.hand.length} carta(s)`),
           h('span', { class: 'me-btns' },
             h('button', { class: `btn uno-btn ${you.uno ? 'on' : you.hand.length === 2 && isHumanTurn() ? 'hint' : ''}`, onClick: onUno }, 'UNO!'),
             state.phase === 'drawn' && h('button', { class: 'btn', onClick: onPass }, 'Passar'))),

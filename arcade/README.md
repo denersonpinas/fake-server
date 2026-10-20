@@ -18,6 +18,24 @@ npm test             # 39 testes de lógica (node --test), sem navegador
 2. Abra o link no celular. **Android/Chrome**: menu ⋮ → *Instalar app*. **iPhone/Safari**: Compartilhar → *Adicionar à Tela de Início*.
 3. Depois do primeiro acesso funciona sem internet (service worker em `sw.js`). Ao mudar arquivos, incremente `CACHE` em `sw.js`.
 
+## Assets (arte)
+
+Linguagem visual: formas planas e geométricas, cantos arredondados, um brilho suave por objeto e paleta curta
+(índigo, ciano, rosa, rubi, âmbar, menta) sobre azul-noite. Tudo é **SVG** (leve, nítido em qualquer tela, offline).
+Veja `assets/index.html` (guia de estilo ao vivo) ou `assets/preview.png`.
+
+```
+assets/brand/      marca (3 círculos + bola)        assets/covers/   capas dos 3 jogos
+assets/icons.svg   sprite de ícones de interface    assets/pinball/  bola, bumper, alvo, flipper, lançador, fundo da mesa
+assets/golf/       bola J1/J2, buraco, bandeira, tee + texturas repetíveis (grama, areia, água, madeira, obstáculo móvel)
+assets/uno/        55 cartas (referência; o jogo desenha as mesmas cartas inline via js/games/uno/art.js)
+icon*.svg/png      ícone do app (normal e maskable)
+```
+
+Os SVGs são **gerados por código**: edite `tools/build-assets.mjs` (ou `js/games/uno/art.js`) e rode
+`node tools/build-assets.mjs`. Isso também atualiza `assets/manifest.json`, usado pelo service worker para o cache offline.
+Os PNGs do ícone são renderizações de `icon.svg` / `icon-maskable.svg`.
+
 ## Arquitetura
 
 ```

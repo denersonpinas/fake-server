@@ -12,7 +12,20 @@ export function h(tag, props, ...kids) {
   return el;
 }
 
-export const starStr = (n, max = 3) => '★'.repeat(n) + '☆'.repeat(max - n);
+const NS = 'http://www.w3.org/2000/svg';
+/** Ícone do sprite assets/icons.svg (herda a cor do texto). */
+export function icon(name, cls = '') {
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', `ico ${cls}`.trim());
+  svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(NS, 'use');
+  use.setAttribute('href', `assets/icons.svg#i-${name}`);
+  svg.append(use);
+  return svg;
+}
+
+export const starRow = (n, max = 3) => h('span', { class: 'stars', role: 'img', 'aria-label': `${n} de ${max} estrelas` },
+  Array.from({ length: max }, (_, i) => icon(i < n ? 'star' : 'star-o', i < n ? 'on' : '')));
 
 export function toast(msg, ms = 1600) {
   let box = document.querySelector('.toasts');

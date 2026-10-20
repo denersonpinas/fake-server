@@ -1,9 +1,10 @@
 import { h, toast } from '../../ui.js';
 import { beep, jingle } from '../../sfx.js';
+import { loadImages, makePattern } from '../../assets.js';
 import { COURSES } from './levels.js';
 import { W, H, BOUNDS, BALL_R, HOLE_R, DT, MAX_STROKES, createWorld, updateMovers, stepBall, shotVelocity } from './physics.js';
 
-const BALL_COLORS = ['#ffffff', '#ffb703'];
+const BALL_COLORS = ['#f1f5f9', '#f59e0b'];
 
 const strokeLabel = (s, par) => {
   if (s === 1) return 'Hole in one! 🎯';
@@ -189,52 +190,58 @@ export function mount(root, { mode, level, names, onFinish }) {
     raf = requestAnimationFrame(frame);
   }
 
-  /* ---------- Desenho ---------- */
-  function rr(x, y, w, h2, r, fill, stroke) {
-    ctx.beginPath(); ctx.roundRect(x, y, w, h2, r);
-    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
-    if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
-  }
+  /* ---------- Desenho (texturas e sprites SVG em assets/golf) ---------- */
+  let IM = null;
+  let PAT = null;
+
+  function rr(x, y, w, h2, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h2, r); }
 
   function draw() {
     const hl = hole();
+    const t = performance.now() / 1000;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#16351f'; ctx.fillRect(0, 0, W, H);
-    // grama listrada
-    for (let i = 0; i < BOUNDS.w / 40; i++) {
-      ctx.fillStyle = i % 2 ? '#2f8f46' : '#34a04e';
-      ctx.fillRect(BOUNDS.x + i * 40, BOUNDS.y, 40, BOUNDS.h);
-    }
-    ctx.lineWidth = 4; ctx.strokeStyle = '#6b4a2b'; ctx.strokeRect(BOUNDS.x - 2, BOUNDS.y - 2, BOUNDS.w + 4, BOUNDS.h + 4);
 
-    for (const s of hl.sand || []) { rr(s.x, s.y, s.w, s.h, 14, '#e6cf8f'); for (let i = 0; i < s.w * s.h / 500; i++) { ctx.fillStyle = 'rgba(160,120,50,.35)'; ctx.fillRect(s.x + ((i * 37) % s.w), s.y + ((i * 53) % s.h), 2, 2); } }
+    ctx.fillStyle = PAT.grass; ctx.fillRect(BOUNDS.x, BOUNDS.y, BOUNDS.w, BOUNDS.h);
+    ctx.lineWidth = 5; ctx.strokeStyle = '#6b4a2b'; ctx.strokeRect(BOUNDS.x - 2.5, BOUNDS.y - 2.5, BOUNDS.w + 5, BOUNDS.h + 5);
+
+    for (const s of hl.sand || []) {
+      rr(s.x, s.y, s.w, s.h, 14); ctx.fillStyle = PAT.sand; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(150,110,40,.55)'; ctx.stroke();
+    }
     for (const wt of hl.water || []) {
-      rr(wt.x, wt.y, wt.w, wt.h, 10, '#2a7de1');
-      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1.5;
-      for (let y = wt.y + 14; y < wt.y + wt.h; y += 26) { ctx.beginPath(); for (let x = wt.x + 6; x < wt.x + wt.w - 6; x += 4) ctx.lineTo(x, y + Math.sin(x / 9 + performance.now() / 400) * 2.5); ctx.stroke(); }
+      PAT.water.setTransform(new DOMMatrix().translate((t * 14) % 64, 0).scale(0.5)); // ondas deslizando
+      rr(wt.x, wt.y, wt.w, wt.h, 10); ctx.fillStyle = PAT.water; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(190,225,255,.7)'; ctx.stroke();
     }
-    ctx.lineWidth = 1;
 
-    // buraco + bandeira
+    // tee, buraco e bandeira
     const hh = hl.hole;
-    ctx.fillStyle = '#0b0b0b'; ctx.beginPath(); ctx.arc(hh.x, hh.y, HOLE_R, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#eee'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hh.x, hh.y); ctx.lineTo(hh.x, hh.y - 42); ctx.stroke();
-    ctx.fillStyle = '#e63946'; ctx.beginPath(); ctx.moveTo(hh.x, hh.y - 42); ctx.lineTo(hh.x + 22, hh.y - 35); ctx.lineTo(hh.x, hh.y - 28); ctx.fill();
-    // tee
-    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(hl.tee.x, hl.tee.y, 14, 0, 7); ctx.fill();
+    ctx.drawImage(IM.tee, hl.tee.x - 18, hl.tee.y - 18, 36, 36);
+    ctx.drawImage(IM.hole, hh.x - 21, hh.y - 21, 42, 42);
 
-    for (const b of hl.blocks || []) { rr(b.x, b.y, b.w, b.h, 4, '#8a5a2b'); rr(b.x + 2, b.y + 2, b.w - 4, Math.max(2, Math.min(5, b.h - 4)), 2, '#b57a3c'); }
-    for (const m of world.movers) { rr(m.x, m.y, m.w, m.h, 4, '#e76f51'); rr(m.x + 2, m.y + 2, m.w - 4, Math.max(2, Math.min(5, m.h - 4)), 2, '#ffb4a2'); }
+    for (const b of hl.blocks || []) {
+      rr(b.x, b.y, b.w, b.h, 4); ctx.fillStyle = PAT.wood; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#5b3a17'; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,235,200,.22)'; ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, Math.min(4, b.h - 4));
+    }
+    for (const m of world.movers) {
+      rr(m.x, m.y, m.w, m.h, 4); ctx.fillStyle = PAT.hazard; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#b5432a'; ctx.stroke();
+    }
 
     // bolas
     players.forEach((p, i) => {
       if (p.done && !(sink && i === turn)) return;
       let { x, y } = p.ball; let r = BALL_R;
       if (sink && i === turn) { const k = Math.min(1, sink.t / 0.5); x = sink.from.x + (hh.x - sink.from.x) * k; y = sink.from.y + (hh.y - sink.from.y) * k; r = BALL_R * (1 - k * 0.8); }
+      const active = i === turn && phase === 'aim' && players.length > 1;
+      if (active) { ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, r + 4, 0, 7); ctx.stroke(); }
       ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x + 2, y + 3, r, r * 0.8, 0, 0, 7); ctx.fill();
-      ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
-      ctx.strokeStyle = i === turn && phase === 'aim' && players.length > 1 ? '#00e5ff' : 'rgba(0,0,0,.5)'; ctx.lineWidth = i === turn && phase === 'aim' && players.length > 1 ? 3 : 1; ctx.stroke();
+      ctx.drawImage(i === 0 ? IM.ball : IM.ballAmber, x - r, y - r, r * 2, r * 2);
     });
+
+    ctx.drawImage(IM.flag, hh.x - 8, hh.y - 56, 44, 60); // por cima da bola que cai no buraco
 
     // mira
     if (drag && phase === 'aim') {
@@ -243,9 +250,10 @@ export function mount(root, { mode, level, names, onFinish }) {
       const len = Math.hypot(vx, vy) || 1;
       const ux = vx / len, uy = vy / len;
       const L = 30 + power * 150;
-      ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.strokeStyle = `hsl(${120 - power * 120},90%,60%)`;
+      const col = `hsl(${120 - power * 120},90%,60%)`;
+      ctx.setLineDash([6, 6]); ctx.lineWidth = 3; ctx.strokeStyle = col;
       ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + ux * L, p.y + uy * L); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.arc(p.x + ux * L, p.y + uy * L, 5, 0, 7); ctx.fill();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.x + ux * L, p.y + uy * L, 5, 0, 7); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.font = 'bold 13px system-ui'; ctx.fillText(`${Math.round(power * 100)}%`, p.x + 12, p.y - 12);
     } else if (phase === 'aim') {
       ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.font = '13px system-ui'; ctx.textAlign = 'center';
@@ -253,7 +261,16 @@ export function mount(root, { mode, level, names, onFinish }) {
     }
   }
 
-  startHole();
-  raf = requestAnimationFrame(frame);
+  loadImages({
+    ball: 'golf/ball.svg', ballAmber: 'golf/ball-amber.svg', hole: 'golf/hole.svg', flag: 'golf/flag.svg', tee: 'golf/tee.svg',
+    grass: 'golf/grass.svg', sand: 'golf/sand.svg', water: 'golf/water.svg', wood: 'golf/wood.svg', hazard: 'golf/hazard.svg',
+  }).then((imgs) => {
+    if (destroyed) return;
+    IM = imgs;
+    PAT = { grass: makePattern(ctx, IM.grass), sand: makePattern(ctx, IM.sand), water: makePattern(ctx, IM.water), wood: makePattern(ctx, IM.wood), hazard: makePattern(ctx, IM.hazard) };
+    startHole();
+    raf = requestAnimationFrame(frame);
+  }).catch((e) => { root.textContent = e.message; });
+
   return { destroy() { destroyed = true; cancelAnimationFrame(raf); } };
 }

@@ -1,7 +1,8 @@
 import { h, toast } from '../../ui.js';
 import { beep, jingle } from '../../sfx.js';
+import { loadImages } from '../../assets.js';
 import { TABLES } from './tables.js';
-import { W, H, BALL_R, createWorld, resetBall, step, launch, nudge, inLane, flipperTip } from './physics.js';
+import { W, H, BALL_R, createWorld, resetBall, step, launch, nudge, inLane } from './physics.js';
 
 const BALLS = 3;
 const MAX_NUDGES = 3;
@@ -205,17 +206,13 @@ export function mount(root, { mode, level, names, onFinish }) {
     ballEl.textContent = duo ? players.map((q) => `${q.name}: ${fmt(q === p ? score : q.score)}`).join('  ·  ') : `Bola ${Math.min(p.used + 1, BALLS)}/${BALLS}`;
   }
 
-  /* ---------- Desenho ---------- */
-  const stars = Array.from({ length: 50 }, (_, i) => [(i * 97) % W, (i * 211) % H, (i % 3) + 0.5]);
+  /* ---------- Desenho (sprites SVG em assets/pinball) ---------- */
+  let IM = null;
 
   function draw() {
-    const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#120a2e'); g.addColorStop(1, '#0a1530');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(255,255,255,.35)';
-    for (const [x, y, r] of stars) ctx.fillRect(x, y, r, r);
+    ctx.drawImage(IM.bg, 0, 0, W, H);
 
-    // paredes
+    // paredes neon
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 8; ctx.strokeStyle = '#67e8f9'; ctx.lineWidth = 3;
     ctx.beginPath();
@@ -227,39 +224,44 @@ export function mount(root, { mode, level, names, onFinish }) {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // mola do lançador
-    const c = charge * 22;
-    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
-    ctx.beginPath(); for (let i = 0; i < 6; i++) { const y = 692 + i * 1.6; ctx.moveTo(360, y); ctx.lineTo(384, y); } ctx.stroke();
-    ctx.fillStyle = '#e2e8f0'; ctx.fillRect(361, 690 + c * 0.2, 22, 3);
+    // lançador: o botão desce conforme a carga
+    ctx.drawImage(IM.knob, 358, 691 + charge * 7, 28, 10);
 
     for (const t of world.targets) {
-      ctx.fillStyle = t.hit ? '#334155' : `hsl(${48 + t.flash * 20},100%,${55 + t.flash * 25}%)`;
-      ctx.beginPath(); ctx.arc(t.x, t.y, t.r + t.flash * 2, 0, 7); ctx.fill();
+      const d = (t.r + t.flash * 2) * 2;
+      ctx.drawImage(t.hit ? IM.targetOff : IM.target, t.x - d / 2, t.y - d / 2, d, d);
     }
     for (const b of world.bumpers) {
-      const r = b.r + b.flash * 4;
-      const rg = ctx.createRadialGradient(b.x - 5, b.y - 5, 2, b.x, b.y, r);
-      rg.addColorStop(0, b.flash > 0.1 ? '#fff' : '#fde68a'); rg.addColorStop(1, b.flash > 0.1 ? '#fb7185' : '#f43f5e');
-      ctx.shadowColor = '#fb7185'; ctx.shadowBlur = 6 + b.flash * 14;
-      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, 7); ctx.fill();
-      ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(b.x, b.y, r - 5, 0, 7); ctx.stroke();
+      const d = (b.r + b.flash * 4) * 2;
+      ctx.shadowColor = b.flash > 0.1 ? '#ffd166' : '#ff4d78'; ctx.shadowBlur = 6 + b.flash * 16;
+      ctx.drawImage(b.flash > 0.15 ? IM.bumperHit : IM.bumper, b.x - d / 2, b.y - d / 2, d, d);
     }
+    ctx.shadowBlur = 0;
 
-    for (const f of world.flippers) {
-      const tip = flipperTip(f);
-      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 15; ctx.beginPath(); ctx.moveTo(f.px, f.py); ctx.lineTo(tip.x, tip.y); ctx.stroke();
-      ctx.strokeStyle = '#e0f2fe'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(f.px, f.py); ctx.lineTo(tip.x, tip.y); ctx.stroke();
-    }
+    world.flippers.forEach((f, i) => {
+      ctx.save();
+      ctx.translate(f.px, f.py);
+      ctx.rotate(f.angle);
+      if (i === 1) ctx.scale(1, -1); // o da direita é o espelho: o brilho continua por cima
+      ctx.drawImage(IM.flipper, -16, -16, 100, 32);
+      ctx.restore();
+    });
 
     const b = world.ball;
-    const bg = ctx.createRadialGradient(b.x - 3, b.y - 3, 1, b.x, b.y, BALL_R);
-    bg.addColorStop(0, '#fff'); bg.addColorStop(1, '#94a3b8');
-    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + 3, BALL_R, BALL_R * 0.8, 0, 0, 7); ctx.fill();
+    ctx.drawImage(IM.ball, b.x - BALL_R, b.y - BALL_R, BALL_R * 2, BALL_R * 2);
   }
 
-  startTurn();
-  raf = requestAnimationFrame(frame);
+  loadImages({
+    bg: 'pinball/table-bg.svg', ball: 'pinball/ball.svg', bumper: 'pinball/bumper.svg', bumperHit: 'pinball/bumper-hit.svg',
+    target: 'pinball/target.svg', targetOff: 'pinball/target-off.svg', flipper: 'pinball/flipper.svg', knob: 'pinball/plunger-knob.svg',
+  }).then((imgs) => {
+    if (destroyed) return;
+    IM = imgs;
+    startTurn();
+    raf = requestAnimationFrame(frame);
+  }).catch((e) => { root.textContent = e.message; });
+
   return {
     destroy() {
       destroyed = true;
